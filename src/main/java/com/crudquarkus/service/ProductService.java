@@ -24,4 +24,15 @@ public class ProductService {
 
         return product;
     }
+
+    @Transactional
+    public void deleteProduct(ProductDto dto) {
+        Product product = new Product();
+        product.setNome(dto.getNome());
+        product.setPreco(dto.getPreco());
+        product.setStock(dto.getStock());
+        product.id = dto.getId();
+        product.delete();
+    }
+
 }
