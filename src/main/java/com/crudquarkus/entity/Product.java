@@ -1,5 +1,6 @@
 package com.crudquarkus.entity;
 
+import com.crudquarkus.filter.PriceFilter;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import io.quarkus.panache.common.Parameters;
 import jakarta.persistence.Entity;
@@ -14,7 +15,9 @@ import java.util.List;
 @NamedQueries(value = {
         @NamedQuery(name = "Product.updateNomeById", query = "update Product p set p.nome = :nome where p.id = :id"),
         @NamedQuery(name = "Product.updatePrecoById", query = "update Product p set p.preco = :preco where p.id = :id"),
-        @NamedQuery(name = "Product.updateStockById", query = "update Product p set p.stock = :stock where p.id = :id")
+        @NamedQuery(name = "Product.updateStockById", query = "update Product p set p.stock = :stock where p.id = :id"),
+        @NamedQuery(name = "Product.findByNameIgnoreCase", query = "from Product where UPPER(nome) = UPPER(:name)"),
+        @NamedQuery(name = "Product.filterByPrice", query = "from Product where preco between :priceMin and :priceMax")
 })
 public class Product extends PanacheEntity {
 
@@ -72,5 +75,19 @@ public class Product extends PanacheEntity {
                 "#Product.updateStockById",
                 Parameters.with("stock", this.stock).and("id", id)
         );
+    }
+
+    public static Product findByNameIgnoreCase(String name) {
+        return find(
+                "#Product.findByNameIgnoreCase",
+                Parameters.with("name", name)
+        ).firstResult();
+    }
+
+    public static List<Product> filterByPrice(PriceFilter filter) {
+        return find(
+                "#Product.filterByPrice",
+                Parameters.with("priceMin", filter.priceMin).and("priceMax", filter.priceMax)
+        ).list();
     }
 }
